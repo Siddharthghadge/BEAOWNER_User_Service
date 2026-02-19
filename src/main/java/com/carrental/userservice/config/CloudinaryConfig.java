@@ -18,3 +18,4 @@ public class CloudinaryConfig {
         return new Cloudinary(cloudinaryUrl);
     }
 }
+

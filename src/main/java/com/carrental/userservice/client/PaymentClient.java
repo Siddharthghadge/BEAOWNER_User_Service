@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
         name = "payment-service",
-        url = "${PAYMENT_SERVICE_URL}"
+        url = "${payment.service.url}"
 )
 public interface PaymentClient {
 
