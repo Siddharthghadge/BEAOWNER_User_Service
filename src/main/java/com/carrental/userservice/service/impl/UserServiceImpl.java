@@ -38,6 +38,45 @@ public class UserServiceImpl implements UserService {
 
 
 
+//    @Override
+//    public User registerUser(CreateUserRequest request) {
+//
+//        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+//            throw new RuntimeException("Email already registered: " + request.getEmail());
+//        }
+//
+//        UserRole role = UserRole.fromString(request.getRole());
+//        if (role == null) role = UserRole.CUSTOMER;
+//
+//        // ✅ Encode password properly
+//        String encodedPassword = passwordEncoder.encode(request.getPassword());
+//
+//        User user = User.builder()
+//                .name(request.getName())
+//                .email(request.getEmail())
+//                .phone(request.getPhone())
+//                .password(encodedPassword)
+//                .address(request.getAddress())
+//                .role(role)
+//                .enabled(true)
+//                .isVerified(false)
+//                .build();
+//
+//        User savedUser = userRepository.save(user);
+//
+//        // ✅ Wallet creation for OWNER (non-blocking)
+//        if (savedUser.getRole() == UserRole.OWNER) {
+//            try {
+//                paymentClient.createWallet(savedUser.getEmail(), savedUser.getId());
+//            } catch (Exception e) {
+//                log.error("Wallet creation failed for owner {}", savedUser.getEmail(), e);
+//            }
+//        }
+//
+//        return savedUser;
+//    }
+
+
     @Override
     public User registerUser(CreateUserRequest request) {
 
@@ -45,10 +84,10 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Email already registered: " + request.getEmail());
         }
 
-        UserRole role = UserRole.fromString(request.getRole());
-        if (role == null) role = UserRole.CUSTOMER;
+        UserRole role = request.getRole() == null
+                ? UserRole.CUSTOMER
+                : UserRole.fromString(request.getRole());
 
-        // ✅ Encode password properly
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         User user = User.builder()
@@ -64,7 +103,6 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(user);
 
-        // ✅ Wallet creation for OWNER (non-blocking)
         if (savedUser.getRole() == UserRole.OWNER) {
             try {
                 paymentClient.createWallet(savedUser.getEmail(), savedUser.getId());
